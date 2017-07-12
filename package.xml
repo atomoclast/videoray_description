@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<package format="2">
+	<name>videoray_description</name>
+	<version>0.1.0</version>
+	<description>The videoray_description package</description>
+	<maintainer email="adahdouh@houstonmechatronics.com">Andrew Dahouh</maintainer>
+	<license>TODO</license>
+	<buildtool_depend>catkin</buildtool_depend>
+	<depend>xacro</depend>
+	
+	
+	<export>
+	</export>
+</package>
