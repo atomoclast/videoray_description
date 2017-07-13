@@ -1,0 +1,12 @@
+<launch>
+	<arg name="namespace" default="videoray_pro4"/>
+	<arg name="debug" default="0"/>
+	
+	<param name="robot_description"
+		command="$(find xacro)/xacro --inorder '$(find videoray_description)/urdf/videoray_pro4.urdf.xacro' debug:=$(arg debug) namespace:=$(arg namespace)" />
+	<node pkg="robot_state_publisher" type="state_publisher" name="robot_state_publisher" />
+	<node pkg="joint_state_publisher" type="joint_state_publisher" name="joint_state_publisher">
+		<param name="use_gui" value="0" />
+	</node>
+	<node pkg="rviz" type="rviz" name="rviz"/>
+</launch>

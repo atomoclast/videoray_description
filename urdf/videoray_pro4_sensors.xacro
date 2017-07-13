@@ -15,14 +15,14 @@
   </gazebo>
 
   <!-- DVL  -->
-  <xacro:default_dvl namespace="${namespace}" parent_link="${namespace}/base_link">
+  <!-- <xacro:default_dvl namespace="${namespace}" parent_link="${namespace}/base_link">
     <origin xyz="0 0 0" rpy="0 0 0"/>
-  </xacro:default_dvl>
+  </xacro:default_dvl> -->
 
   <!-- RPT  -->
-  <xacro:default_rpt namespace="${namespace}" parent_link="${namespace}/base_link">
+  <!-- <xacro:default_rpt namespace="${namespace}" parent_link="${namespace}/base_link">
     <origin xyz="0 0 0" rpy="0 0 0"/>
-  </xacro:default_rpt>
+  </xacro:default_rpt> -->
 
   <!-- Pressure  -->
   <xacro:default_pressure namespace="${namespace}" parent_link="${namespace}/base_link">

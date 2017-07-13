@@ -32,57 +32,59 @@
     </link>
 
     <!-- Joint between thruster link and vehicle base link -->
-        <joint name="${robot_namespace}/thruster_${thruster_id}_joint" type="continuous">
-          <xacro:insert_block name="origin" />
-          <axis xyz="1 0 0" />
-          <parent link="${robot_namespace}/base_link" />
-          <child link="${robot_namespace}/thruster_${thruster_id}" />
-        </joint>
+    <joint name="${robot_namespace}/thruster_${thruster_id}_joint" type="continuous">
+      <xacro:insert_block name="origin" />
+      <axis xyz="0 0 1" />
+      <parent link="${robot_namespace}/base_link" />
+      <child link="${robot_namespace}/thruster_${thruster_id}" />
+  </joint>
 
-    <gazebo>
-    	<!-- Thruster ROS plugin -->
-    	<plugin name="${robot_namespace}_${thruster_id}_thruster_model" filename="libthruster_ros_plugin.so">
-    		<!-- Name of the thruster link -->
-    		<linkName>${robot_namespace}/thruster_${thruster_id}</linkName>
+  <gazebo>
+   <!-- Thruster ROS plugin -->
+   <plugin name="${robot_namespace}_${thruster_id}_thruster_model" filename="libthruster_ros_plugin.so">
+      <!-- Name of the thruster link -->
+      <linkName>${robot_namespace}/thruster_${thruster_id}</linkName>
 
-    		<!-- Name of the joint between thruster and vehicle base link -->
-    		<jointName>${robot_namespace}/thruster_${thruster_id}_joint</jointName>
+      <!-- Name of the joint between thruster and vehicle base link -->
+      <jointName>${robot_namespace}/thruster_${thruster_id}_joint</jointName>
 
-    		<!-- Thruster force output topic name -->
-    		<thrustTopic>${robot_namespace}/thrusters/${thruster_id}/thrust</thrustTopic>
+      <thrusterID>${thruster_id}</thrusterID>
 
-    		<!-- Thruster commmand input topic name -->
-    		<inputTopic>${robot_namespace}/thrusters/${thruster_id}/input</inputTopic>
+      <!-- Thruster force output topic name -->
+      <thrustTopic>${robot_namespace}/thrusters/${thruster_id}/thrust</thrustTopic>
 
-    		<!-- Gain of the input command signal -->
-    		<gain>1</gain>
+      <!-- Thruster commmand input topic name -->
+      <inputTopic>${robot_namespace}/thrusters/${thruster_id}/input</inputTopic>
 
-    		<!-- Maximum allowed input value for the input signal for thruster unit -->
-    		<clampMax>2</clampMax>
+      <!-- Gain of the input command signal -->
+      <gain>1</gain>
 
-    		<!-- Minimum allowed value for the input signal for thruster unit -->
-    		<clampMin>0</clampMin>
+      <!-- Maximum allowed input value for the input signal for thruster unit -->
+      <clampMax>2</clampMax>
 
-    		<thrust_efficiency>1</thrust_efficiency>
+      <!-- Minimum allowed value for the input signal for thruster unit -->
+      <clampMin>0</clampMin>
 
-    		<propeller_efficiency>1</propeller_efficiency>
+      <thrust_efficiency>1</thrust_efficiency>
 
-    		<!-- Simple zero-order model -->
-    		<dynamics>
-    			<type>ZeroOrder</type>
-    		</dynamics>
+      <propeller_efficiency>1</propeller_efficiency>
 
-    		<conversion>
-    			<type>Basic</type>
-    			<rotorConstant>10</rotorConstant>
-    		</conversion>
+      <dynamics>
+          <type>FirstOrder</type>
+          <timeConstant>0.05</timeConstant>
+      </dynamics>
 
-    	</plugin>
-    </gazebo>
+      <conversion>
+         <type>Basic</type>
+         <rotorConstant>0.00031</rotorConstant>
+     </conversion>
 
-    <gazebo reference="${robot_namespace}/thruster_${thruster_id}">
-    	<selfCollide>false</selfCollide>
-    </gazebo>
+ </plugin>
+</gazebo>
+
+<gazebo reference="${robot_namespace}/thruster_${thruster_id}">
+   <selfCollide>false</selfCollide>
+</gazebo>
 </xacro:macro>
 
 </robot>
