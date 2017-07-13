@@ -1,0 +1,139 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <!-- Loading some constants -->
+  <xacro:include filename="$(find uuv_descriptions)/models/common/urdf/common.urdf.xacro"/>
+  <!-- Loading file with sensor macros -->
+  <xacro:include filename="$(find uuv_sensor_plugins_ros)/urdf/sensor_snippets.xacro"/>
+  <!-- Loading vehicle's specific macros -->
+  <xacro:include filename="$(find videoray_description)/urdf/videoray_pro4_thruster.xacro"/>
+
+  <!-- Vehicle's parameters -->
+
+  <xacro:property name="mass" value="6.123497"/>
+  <!-- Volume taken from mesh in Blender. Should be verified in Solidworks or similar to ensure it uses the face of the mesh to calculate volume. -->
+  <xacro:property name="volume" value="0.0031093918"/>
+  <!-- Center of gravity. Assumption, should be checked.-->
+  <xacro:property name="cog" value="0 0 0"/>
+  <!-- Center of buoyancy -->
+  <xacro:property name="cob" value="0 0 0.15"/>
+  <!-- Fluid density, assuming fresh water right now. For salt water, use 1028 or so. -->
+  <xacro:property name="rho" value="1000"/>
+
+  <!-- Describing the dimensions of the vehicle's bounding box -->
+  <xacro:property name="length" value="0.375"/>
+  <xacro:property name="width"  value="0.289"/>
+  <xacro:property name="height" value="0.223"/>
+
+  <!-- Visual mesh file for the vehicle, usually in DAE (Collada) format -->
+  <xacro:property name="visual_mesh_file" value="package://videoray_description/meshes/videoray_pro4.stl"/>
+
+  <!-- Collision geometry mesh, usually in STL format (it is recommended to keep
+  this geometry as simple as possible to improve the performance the physics engine
+  regarding the computation of collision forces) -->
+  <xacro:property name="collision_mesh_file" value="package://videoray_description/meshes/videoray_pro4.stl"/>
+
+  <!-- Vehicle macro -->
+  <xacro:macro name="videoray_pro4" params="namespace debug">
+
+    <!-- Rigid body description of the base link -->
+    <link name="${namespace}/base_link">
+      <inertial>
+        <mass value="${mass}" />
+        <origin xyz="${cog}" rpy="0 0 0"/>
+        <inertia ixx="0" ixy="0" ixz="0"
+         iyy="0" iyz="0"
+         izz="0" />
+       </inertial>
+
+       <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="${visual_mesh_file}" scale="1 1 1" />
+        </geometry>
+      </visual>
+
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="${collision_mesh_file}" scale="1 1 1" />
+        </geometry>
+      </collision>
+    </link>
+
+    <gazebo reference="${namespace}/base_link">
+      <selfCollide>false</selfCollide>
+    </gazebo>
+
+  <!-- Dummy link for the frame in SNAME standard, Gazebo does not offer
+  the option to change from ENU standard yet-->
+  <xacro:dummy_link name="${namespace}/ned_link" />
+
+  <joint name="ned_joint" type="revolute">
+    <!-- This is revolute and not static since gazebo would remove ned_link -->
+    <origin xyz="0 0 0" rpy="${pi} 0 0"/>
+    <parent link="${namespace}/base_link"/>
+    <child link="${namespace}/ned_link"/>
+    <limit effort="0" lower="0" upper="0" velocity="0"/>
+  </joint>
+
+  <!-- Set up hydrodynamic plugin -->
+  <gazebo>
+    <plugin name="${namespace}_uuv_plugin" filename="libunderwater_object_ros_plugin.so">
+        <!-- Fluid density to be used in the computation of buoyancy forces
+        for all links specified below -->
+        <fluid_density>${rho}</fluid_density>
+
+        <!-- Name of the current velocity topic -->
+        <flow_velocity_topic>hydrodynamics/current_velocity</flow_velocity_topic>
+
+        <!-- Debug flag, if set to true, added-mass, damping and restoring
+        forces and moments will be published in separate topics -->
+        <debug>${debug}</debug>
+
+        <!-- List of hydrodynamic models this robot's links -->
+        <link name="${namespace}/base_link">
+          <!-- This flag will make the link neutrally buoyant -->
+          <neutrally_buoyant>0</neutrally_buoyant>
+
+          <!-- Link's volume -->
+          <volume>${volume}</volume>
+
+          <!-- Link's bounding box, it is used to recalculate the immersed
+          volume when close to the surface.
+          This is a workaround the invalid bounding box given by Gazebo-->
+          <box>
+            <width>${width}</width>
+            <length>${length}</length>
+            <height>${height}</height>
+          </box>
+
+          <!-- Center of buoyancy -->
+          <center_of_buoyancy>${cob}</center_of_buoyancy>
+
+
+          <hydrodynamic_model>
+            <type>fossen</type>
+            <added_mass>
+              0 0 0 0 0 0
+              0 0 0 0 0 0
+              0 0 0 0 0 0
+              0 0 0 0 0 0
+              0 0 0 0 0 0
+              0 0 0 0 0 0
+            </added_mass>
+            <linear_damping>
+              0 0 0 0 0 0
+            </linear_damping>
+          </hydrodynamic_model>
+        </link>
+      </plugin>
+    </gazebo>
+
+    <!-- Include the thruster modules -->
+    <xacro:include filename="$(find videoray_description)/urdf/videoray_pro4_thrusters.xacro"/>
+
+    <!-- Include the sensor modules -->
+    <xacro:include filename="$(find videoray_description)/urdf/videoray_pro4_sensors.xacro"/>
+  </xacro:macro>
+
+</robot>

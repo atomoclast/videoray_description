@@ -10,13 +10,6 @@
 	<arg name="pitch" default="0"/>
 	<arg name="yaw"   default="0"/>
 
-  <!-- Mode to open different robot configurations as set the in file
-  nomenclature standard for the files in /robots
-
-  /robots/<model_name>_<mode>.xacro
--->
-<arg name="mode" default="default"/>
-
 <!-- Vehicle's namespace -->
 <arg name="namespace" default="videoray_pro4"/>
 
@@ -24,7 +17,7 @@
 
 <group ns="$(arg namespace)">
 	<param name="robot_description"
-		command="$(find xacro)/xacro.py '$(find videoray_description)/urdf/videoray_pro4.urdf.xacro' debug:=$(arg debug) namespace:=$(arg namespace)" />
+		command="$(find xacro)/xacro --inorder '$(find videoray_description)/urdf/videoray_pro4.urdf.xacro' debug:=$(arg debug) namespace:=$(arg namespace)" />
 
 		<!-- Run a python script to the send a service call to gazebo_ros to spawn a URDF robot -->
 		<node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"

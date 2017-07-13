@@ -3,7 +3,6 @@ project(videoray_description)
 find_package(catkin REQUIRED)
 catkin_package()
 install(DIRECTORY
-	config
 	launch
 	urdf
 	meshes
