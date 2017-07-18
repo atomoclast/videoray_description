@@ -10,15 +10,15 @@
   <!-- Vehicle's parameters -->
 
   <xacro:property name="mass" value="6.123497"/>
-  <!-- Volume taken from mesh in Blender. Should be verified in Solidworks or similar to ensure it uses the face of the mesh to calculate volume. -->
-  <!-- <xacro:property name="volume" value="0.0031093918"/> -->
-  <xacro:property name="volume" value="3.1093918"/>
+  <!-- <xacro:property name="mass" value="0.123497"/> -->
+
+  <xacro:property name="volume" value="0.051093918"/>
   <!-- Center of gravity. Assumption, should be checked.-->
   <xacro:property name="cog" value="0 0 0"/>
   <!-- Center of buoyancy -->
-  <xacro:property name="cob" value="0 0 0.15"/>
+  <xacro:property name="cob" value="0 0 0.25"/>
   <!-- Fluid density, assuming fresh water right now. For salt water, use 1028 or so. -->
-  <xacro:property name="rho" value="1000"/>
+  <xacro:property name="rho" value="1028"/>
 
   <!-- Describing the dimensions of the vehicle's bounding box -->
   <xacro:property name="length" value="0.375"/>
@@ -41,9 +41,9 @@
       <inertial>
         <mass value="${mass}" />
         <origin xyz="${cog}" rpy="0 0 0"/>
-        <inertia ixx="0" ixy="0" ixz="0"
-         iyy="0" iyz="0"
-         izz="0" />
+        <inertia ixx="0.16319" ixy="0" ixz="0"
+         iyy="0.23313" iyz="0"
+         izz="0.27451" />
        </inertial>
 
        <visual>
@@ -70,6 +70,7 @@
   <xacro:dummy_link name="${namespace}/ned_link" />
 
   <joint name="ned_joint" type="revolute">
+  <!-- <joint name="ned_joint" type="fixed"> -->
     <!-- This is revolute and not static since gazebo would remove ned_link -->
     <origin xyz="0 0 0" rpy="${pi} 0 0"/>
     <parent link="${namespace}/base_link"/>
@@ -94,7 +95,7 @@
         <!-- List of hydrodynamic models this robot's links -->
         <link name="${namespace}/base_link">
           <!-- This flag will make the link neutrally buoyant -->
-          <neutrally_buoyant>0</neutrally_buoyant>
+          <neutrally_buoyant>1</neutrally_buoyant>
 
           <!-- Link's volume -->
           <volume>${volume}</volume>
@@ -102,11 +103,19 @@
           <!-- Link's bounding box, it is used to recalculate the immersed
           volume when close to the surface.
           This is a workaround the invalid bounding box given by Gazebo-->
-          <box>
+          <!-- <box>
             <width>${width}</width>
             <length>${length}</length>
             <height>${height}</height>
+          </box> -->
+
+          <box>
+            <width>1.5</width>
+            <length>2.6</length>
+            <height>1.6</height>
           </box>
+
+
 
           <!-- Center of buoyancy -->
           <center_of_buoyancy>${cob}</center_of_buoyancy>
@@ -114,6 +123,7 @@
 
           <hydrodynamic_model>
             <type>fossen</type>
+            <!-- Added mass: see p.28 in Berg2012 -->
             <added_mass>
               0 0 0 0 0 0
               0 0 0 0 0 0
@@ -121,14 +131,24 @@
               0 0 0 0 0 0
               0 0 0 0 0 0
               0 0 0 0 0 0
-            </added_mass>
+            </added_mass>  
+            <!-- Linear damping: see p.31 in Berg2012 -->
             <linear_damping>
-              0 0 0 0 0 0
+              -7.82 -6.48 -72.4 -26.8 -30.77 -10
             </linear_damping>
+            <!-- Non-linear damping: see p.30 in Berg2012 -->
+            <quadratic_damping>
+              -78.22 -92.53 -181.01 -67 -77.44 -52.27
+            </quadratic_damping>
           </hydrodynamic_model>
         </link>
       </plugin>
     </gazebo>
+
+    <gazebo reference="${namespace}/base_link">
+      <material>Gazebo/Orange</material>
+    </gazebo>
+
 
     <!-- Include the thruster modules -->
     <xacro:include filename="$(find videoray_description)/urdf/videoray_pro4_thrusters.xacro"/>

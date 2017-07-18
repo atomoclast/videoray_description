@@ -1,7 +1,7 @@
 <launch>
 	<arg name="namespace" default="videoray_pro4"/>
-	<arg name="debug" default="0"/>
-	
+	<arg name="debug" default="1"/>
+
 	<param name="robot_description"
 		command="$(find xacro)/xacro --inorder '$(find videoray_description)/urdf/videoray_pro4.urdf.xacro' debug:=$(arg debug) namespace:=$(arg namespace)" />
 	<node pkg="robot_state_publisher" type="state_publisher" name="robot_state_publisher" />
